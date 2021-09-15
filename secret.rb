@@ -13,7 +13,7 @@ ENV['DAYS_PAST_TO_IMPORT'] = '1'   # number of past days to import from csv file
 ENV['MAILCHIMP_API'] = 'a75024ff27c2f570d066d747325f0dee-us3'
 ENV['MAILCHIMP_SERVER'] = 'us3'
 ENV['BULLETIN_LIST_ID'] = '7e54ad03a8'
-ENV['SPOKESMAN_LIST_ID'] = '7e54ad03a8'
+ENV['SPOKESMAN_LIST_ID'] = ''
 ENV['MAILCHIMP_SUBSCRIPTION_GROUP_NAME'] = 'Subscriptions'
 # TownNews FTP settings
 ENV['TOWNNEWS_REGISTERED_USERS_FILE'] = '/dailyuser/export/audience/userexport.csv'
