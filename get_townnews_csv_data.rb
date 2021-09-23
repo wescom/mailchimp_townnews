@@ -5,13 +5,16 @@ require 'net/ssh/proxy/http'
 require 'csv'
 require 'date'
 
-def download_TownNews_FTP_files()
+def download_TownNews_FTP_files(domain)
   puts "Connecting to TownNews"
-  Net::SFTP.start(ENV['TOWNNEWS_SERVER_DOMAIN_NAME'],ENV['TOWNNEWS_SERVER_FTP_LOGIN'],{:password => ENV['TOWNNEWS_SERVER_FTP_PASSWORD'],:port=>122}) do |sftp|
-    # list the entries in a directory
-    #sftp.dir.foreach("/dailyuser/export/audience") do |entry|
-    #  puts entry.longname
-    #end
+  
+  domain = domain.upcase
+  townnews_domain_name = ENV['TOWNNEWS_'+domain+'_DOMAIN_NAME']
+  townnews_domain_ftp_login = ENV['TOWNNEWS_'+domain+'_FTP_LOGIN']
+  townnews_domain_ftp_password = ENV['TOWNNEWS_'+domain+'_FTP_PASSWORD']
+  raise StandardError if townnews_domain_name.empty? or townnews_domain_ftp_login.empty? or townnews_domain_ftp_password.empty?
+
+  Net::SFTP.start(townnews_domain_name,townnews_domain_ftp_login,{:password => townnews_domain_ftp_password,:port=>122}) do |sftp|
     # download files from the remote host
     puts "Downloading files from TownNews ..."
     registered_user_file = ENV['TOWNNEWS_REGISTERED_USERS_FILE']
@@ -22,9 +25,17 @@ def download_TownNews_FTP_files()
     sftp.download!(subscriber_file, "./subscribers.csv")
     puts "Download complete."
   end
+  stop
   
-  rescue MailchimpMarketing::ApiError => e
-    puts "Connection Error: #{e}"
+  rescue
+    puts "\n**************************************************************************************************"
+    puts " TownNews FTP Connection Error: cannot connect to domain '"+domain+"'"
+    puts " Check FTP connection setting within the secret.rb file:"
+    puts "      domain name = "+townnews_domain_name
+    puts "      login = "+townnews_domain_ftp_login
+    puts "      password = ******"
+    puts "**************************************************************************************************"
+    puts "\n\n\n"
 end
 
 def get_townnews_users()
