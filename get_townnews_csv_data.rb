@@ -25,7 +25,6 @@ def download_TownNews_FTP_files(domain)
     sftp.download!(subscriber_file, "./subscribers.csv")
     puts "Download complete."
   end
-  stop
   
   rescue
     puts "\n**************************************************************************************************"
@@ -36,6 +35,7 @@ def download_TownNews_FTP_files(domain)
     puts "      password = ******"
     puts "**************************************************************************************************"
     puts "\n\n\n"
+    exit!
 end
 
 def get_townnews_users()

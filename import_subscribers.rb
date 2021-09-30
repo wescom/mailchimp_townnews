@@ -21,6 +21,7 @@ def connect_mailchimp()
 
   rescue MailchimpMarketing::ApiError => e
     puts "Connection Error: #{e}"
+    exit!
 end
 
 ##################################################################
@@ -40,6 +41,7 @@ def get_group_id_of_name(client, list_id, group_name)
   
   rescue MailchimpMarketing::ApiError => e
     puts "GroupID Error: #{e}"  
+    exit!
 end
 
 def get_interest_id_of_name(client, list_id, group_name, interest_name)
@@ -61,6 +63,7 @@ def get_interest_id_of_name(client, list_id, group_name, interest_name)
 
   rescue MailchimpMarketing::ApiError => e
     puts "Group Interest Error: #{e}"  
+    exit!
 end
 
 def member_exists_in_list?(client, list_id, member_data)
@@ -69,6 +72,7 @@ def member_exists_in_list?(client, list_id, member_data)
 
   rescue MailchimpMarketing::ApiError => e
     return false
+    exit!
 end
 
 ##################################################################
@@ -185,6 +189,8 @@ def merge_townnews_users_and_subscribers(townnews_users,townnews_subscribers)
     user_in_subscriber_array = townnews_subscribers.find{|a| a['user_email'] == user['email']}
     if user_in_subscriber_array.nil?  # user was not a subscriber thus only registering, add to array
       townnews_users_and_subscribers.push(['','',user['last_name'],user['first_name'],'',user['email'],user['address'],'','',user['phone'],user['postal_code'],'','',ENV['TOWNNEWS_REGISTERED_GROUP_NAME'],'','','','','','','','','','','','','','','','1','','',user['creationdate']])
+    else
+      # already in subscriber file, dont add again
     end
   end
   return townnews_users_and_subscribers
@@ -217,9 +223,15 @@ def update_member_subscription_group(client, list_id, member_data)
     group_interests = client.lists.list_interest_category_interests(list_id, group_id) # find all interests of group_id
     interests_hash_to_set = {}
     keys_to_extract = ["id", "name"]
+    service_name_matches_an_interest = false  # keep track if subscription service_name matches at least one interest
     group_interests["interests"].map do |interest|
-      interests_hash_to_set[interest["id"]] = interest.has_value?(member_data["service_name"])
+      interest_matches = interest.has_value?(member_data["service_name"])
+      interests_hash_to_set[interest["id"]] = interest_matches
+      if interest_matches
+        service_name_matches_an_interest = true
+      end
     end
+    puts "*** No MailChimp subscription group matches service_name: "+member_data["service_name"] unless service_name_matches_an_interest
     
     # update subscription group
     member = client.lists.update_list_member(
@@ -234,6 +246,7 @@ def update_member_subscription_group(client, list_id, member_data)
   
   rescue MailchimpMarketing::ApiError => e
     puts "GroupID Error: #{e}"  
+    exit!
 end
 
 def add_or_update_member_record(client, list_id, member_data, index)
@@ -284,22 +297,21 @@ def add_or_update_member_record(client, list_id, member_data, index)
   # update member's subsctiption group
   update_member_subscription_group(client, list_id, member_data)
 
-  member = client.lists.get_list_member(ENV["BULLETIN_LIST_ID"], email)
+  member = client.lists.get_list_member(list_id, email)
   if merge_fields["MMERGE25"] == "YES"
-    puts "#{index+1} - Subscriber added/updated in MailChimp:  " + member['email_address'] + "  " + member['full_name']
+    puts "#{index+1} - Subscriber added/updated in MailChimp:  " + member['email_address'] + " - " + member['full_name']
   else
-    puts "#{index+1} - Registered User added/updated in MailChimp:  " + member['email_address'] + "  " + member['full_name']
+    puts "#{index+1} - Registered User added/updated in MailChimp:  " + member['email_address'] + " - " + member['full_name']
   end
 
 rescue MailchimpMarketing::ApiError => e
   puts "Update Member Error: #{e}"
+  exit!
 end
 
 ##################################################################
 # MAIN
 ##################################################################
-list_id = ENV["BULLETIN_LIST_ID"] # MailChimp audience list ID
-
 # Get records from TownNews CSV files - registered users and subscribers
 # TownNews files:
 #   userexport.csv =  registered users in  TownNews database (subscribers and non-subscriber)
@@ -312,9 +324,13 @@ if ARGV[0].nil?
   puts "   Example =   ./import_subscribers.rb bendbulletin"
   return
 else
-  puts "Domain to import: " +ARGV[0]
+  domain = ARGV[0]
+  puts "\n---------------------------------------------------------"
+  puts "Domain to import: " + domain
+  puts "---------------------------------------------------------\n"
 end
-download_TownNews_FTP_files(ARGV[0])  #connect to TownNews FTP
+
+download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
 
 # read downloaded records into arrays for import
 townnews_users = get_townnews_users()               # returns array of registered users
@@ -324,14 +340,16 @@ townnews_subscribers = get_townnews_subscribers()   # returns array of subscribe
 townnews_users_and_subscribers = merge_townnews_users_and_subscribers(townnews_users,townnews_subscribers)
 
 # Update MailChimp with new subscriber record changes
-mailchimp_client = connect_mailchimp()  #connect to mailchimp API
+mailchimp_client = connect_mailchimp()  # connect to mailchimp API
+list_id = ENV[domain.upcase+'_LIST_ID'] # get MailChimp audience list ID based on domain
+list_name = mailchimp_client.lists.get_list(list_id)["name"] # get MailChimp audience name
+puts "\nConnected to MailChimp audience: #" + list_id + " - " + list_name
+
 townnews_users_and_subscribers.each_with_index do |member,index|
   # connect to MailChimp API every 100 records
   #if index % 100 == 0
   #  mailchimp_client = connect_mailchimp()
   #end
-
   add_or_update_member_record(mailchimp_client, list_id, member, index)
 end
-
 
