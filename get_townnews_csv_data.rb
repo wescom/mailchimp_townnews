@@ -19,10 +19,12 @@ def download_TownNews_FTP_files(domain)
     puts "Downloading files from TownNews ..."
     registered_user_file = ENV['TOWNNEWS_REGISTERED_USERS_FILE']
     subscriber_file = ENV['TOWNNEWS_SUBSCRIBERS_FILE']
-    puts "   " + registered_user_file
-    puts "   " + subscriber_file
-    sftp.download!(registered_user_file, "./userexport.csv")
-    sftp.download!(subscriber_file, "./subscribers.csv")
+    userfile = "./data/" + domain.upcase + "_users.csv"
+    subscriberfile = "./data/" + domain.upcase + "_subscribers.csv"
+    sftp.download!(registered_user_file, userfile)
+    sftp.download!(subscriber_file, subscriberfile)
+    puts "   " + registered_user_file + " => " + userfile
+    puts "   " + subscriber_file + " => " + subscriberfile
     puts "Download complete."
   end
   
@@ -38,9 +40,10 @@ def download_TownNews_FTP_files(domain)
     exit!
 end
 
-def get_townnews_users()
+def get_townnews_users(domain)
   #read users into array
-  townnews_users = CSV.parse(File.read("userexport.csv"), headers: true)
+  userfile = "./data/" + domain.upcase + "_users.csv"
+  townnews_users = CSV.parse(File.read(userfile), headers: true)
   todays_date = Date.parse(DateTime.now.to_s)
 
   # filter array to new records based on ENV['DAYS_PAST_TO_IMPORT']
@@ -53,13 +56,14 @@ def get_townnews_users()
     end  
   end
   
-  puts "TownNews registered users in file userexport.csv - " + townnews_users.length.to_s
+  puts "TownNews registered users in file " + userfile + " - " +townnews_users.length.to_s
   return townnews_users
 end
 
-def get_townnews_subscribers()
+def get_townnews_subscribers(domain)
   #read subscribers into array
-  townnews_subscribers = CSV.parse(File.read("subscribers.csv"), headers: true)
+  subscriberfile = "./data/" + domain.upcase + "_subscribers.csv"
+  townnews_subscribers = CSV.parse(File.read(subscriberfile), headers: true)
   todays_date = Date.parse(DateTime.now.to_s)
 
   # filter array to new records based on ENV['DAYS_PAST_TO_IMPORT']
@@ -72,6 +76,6 @@ def get_townnews_subscribers()
     end
   end
   
-  puts "TownNews subscribers in file subscribers.csv - " + townnews_subscribers.length.to_s
+  puts "TownNews subscribers in file " + subscriberfile + " - " + townnews_subscribers.length.to_s
   return townnews_subscribers
 end

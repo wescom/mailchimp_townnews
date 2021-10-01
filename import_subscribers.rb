@@ -315,7 +315,7 @@ end
 # Get records from TownNews CSV files - registered users and subscribers
 # TownNews files:
 #   userexport.csv =  registered users in  TownNews database (subscribers and non-subscriber)
-#   subscribers.csv = subsuscribers in TownNews database with their subscription info
+#   subscribers.csv = subscribers in TownNews database with their subscription info
 
 # supplied parameter determines which site we will import from TownNews
 if ARGV[0].nil?
@@ -333,8 +333,8 @@ end
 download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
 
 # read downloaded records into arrays for import
-townnews_users = get_townnews_users()               # returns array of registered users
-townnews_subscribers = get_townnews_subscribers()   # returns array of subscribers
+townnews_users = get_townnews_users(domain)               # returns array of registered users
+townnews_subscribers = get_townnews_subscribers(domain)   # returns array of subscribers
 
 # merge registered users and subscribers into single array for import
 townnews_users_and_subscribers = merge_townnews_users_and_subscribers(townnews_users,townnews_subscribers)

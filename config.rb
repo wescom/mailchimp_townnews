@@ -27,6 +27,6 @@ ENV['WALLOWA_LIST_ID'] = ''
 # TownNews FTP settings and data configs
 ENV['TOWNNEWS_REGISTERED_USERS_FILE'] = '/dailyuser/export/audience/userexport.csv'
 ENV['TOWNNEWS_SUBSCRIBERS_FILE'] = '/dailyuser/export/audience/subscribers.csv'
-ENV['TOWNNEWS_DIGITAL_SUBSCRIPTION_NAMES'] = 'Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service'
-ENV['TOWNNEWS_SUBSCRIPTION_NAMES'] = 'Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service'
+ENV['TOWNNEWS_DIGITAL_SUBSCRIPTION_NAMES'] = 'Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service,Chinook Observer Brainworks Service'
+ENV['TOWNNEWS_SUBSCRIPTION_NAMES'] = 'Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service,Chinook Observer Brainworks Service'
 ENV['TOWNNEWS_REGISTERED_GROUP_NAME'] = 'Registered Account'
