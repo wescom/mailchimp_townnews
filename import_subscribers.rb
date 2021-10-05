@@ -306,7 +306,6 @@ def add_or_update_member_record(client, list_id, member_data, index)
 
 rescue MailchimpMarketing::ApiError => e
   puts "Update Member Error: #{e}"
-  exit!
 end
 
 ##################################################################
