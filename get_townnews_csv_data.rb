@@ -56,7 +56,7 @@ def get_townnews_users(domain)
     end  
   end
   
-  puts "TownNews registered users in file " + userfile + " - " +townnews_users.length.to_s
+  puts "   TownNews registered users in file " + userfile + " - " +townnews_users.length.to_s
   return townnews_users
 end
 
@@ -76,6 +76,6 @@ def get_townnews_subscribers(domain)
     end
   end
   
-  puts "TownNews subscribers in file " + subscriberfile + " - " + townnews_subscribers.length.to_s
+  puts "   TownNews subscribers in file " + subscriberfile + " - " + townnews_subscribers.length.to_s
   return townnews_subscribers
 end
