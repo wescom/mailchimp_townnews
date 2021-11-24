@@ -391,7 +391,7 @@ else
   puts "---------------------------------------------------------\n"
 end
 
-#download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
+download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
 
 # read downloaded records into arrays for import
 townnews_users = get_townnews_users(domain)               # returns array of registered users
