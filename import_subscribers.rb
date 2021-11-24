@@ -75,6 +75,26 @@ def member_exists_in_list?(client, list_id, member_data)
     exit!
 end
 
+def add_group_interest(client, list_id, group_name, interest_name)
+  # adds new interest to Mailchimp group, returns id
+
+  # find group_id of group_name
+  group_id = get_group_id_of_name(client, list_id, group_name)
+  #puts group_id
+
+  response = client.lists.create_interest_category_interest(
+      list_id,
+      group_id,
+      { 'name' => interest_name }
+    )
+  puts "*** New mailchimp group_interest added: " + group_name + "->" + response['name']
+  return response['id']
+
+  rescue MailchimpMarketing::ApiError => e
+    puts "Group Interest Add Error: #{e}"
+    exit!
+end
+
 ##################################################################
 ### NAME & ADDRESS funtions
 ##################################################################
@@ -214,6 +234,34 @@ def digital_subscription?(member_data)
   end
 end
 
+def activate_member_marketing_groups(client, list_id, member_data)
+  # new members will be activated for all marketing 'groups'
+  email = Digest::MD5.hexdigest member_data["user_email"].downcase
+  if member_exists_in_list?(client, list_id, member_data)
+    group_id = get_group_id_of_name(client, list_id, ENV['MAILCHIMP_MARKETING_GROUP_NAME'])
+    #puts group_id
+    group_interests = client.lists.list_interest_category_interests(list_id, group_id) # find all interests of group_id
+    interests_hash_to_set = {}
+    group_interests["interests"].map do |interest|
+      interests_hash_to_set[interest["id"]] = true
+    end
+    
+    # activate marketing groups
+    member = client.lists.update_list_member(
+        list_id,
+        member_data["user_email"],
+        :interests => interests_hash_to_set
+    )
+    #puts member
+  else
+    puts "Member NOT FOUND in MailChimp"
+  end
+  
+  rescue MailchimpMarketing::ApiError => e
+    puts "GroupID Error: #{e}"  
+    exit!
+end
+
 def update_member_subscription_group(client, list_id, member_data)
   # updates existing member's subscription group
   email = Digest::MD5.hexdigest member_data["user_email"].downcase
@@ -231,15 +279,20 @@ def update_member_subscription_group(client, list_id, member_data)
         service_name_matches_an_interest = true
       end
     end
-    puts "*** No MailChimp subscription group matches service_name: "+member_data["service_name"] unless service_name_matches_an_interest
+    
+    unless service_name_matches_an_interest
+      puts "*** No MailChimp subscription group matches service_name: "+member_data["service_name"]
+      # add new group_interest 
+      id = add_group_interest(client, list_id, ENV['MAILCHIMP_SUBSCRIPTION_GROUP_NAME'], member_data["service_name"])
+      interests_hash_to_set[id] = true
+    end
     
     # update subscription group
     member = client.lists.update_list_member(
         list_id,
         member_data["user_email"],
         :interests => interests_hash_to_set
-      )
-      #puts member
+    )
   else
     puts "Member NOT FOUND in MailChimp"
   end
@@ -250,6 +303,11 @@ def update_member_subscription_group(client, list_id, member_data)
 end
 
 def add_or_update_member_record(client, list_id, member_data, index)
+  # IF "service_name" begins with 'Comm', replace with generic name 'Commercial Account Access'. Avoids numerous unique commericial subscriptions
+  if member_data["service_name"].start_with?('Comm')
+    member_data["service_name"] = 'Commercial Account Access'
+  end
+  
   # set merge_fields to update in MailChimp member record
   merge_fields = {}
   merge_fields["FNAME"] = get_first_name(member_data)
@@ -277,6 +335,7 @@ def add_or_update_member_record(client, list_id, member_data, index)
   # add or update MailChimp member record
   email = Digest::MD5.hexdigest member_data["user_email"].downcase
   if member_exists_in_list?(client, list_id, member_data)
+    # existing member record
     member = client.lists.update_list_member(
         list_id,
         member_data["user_email"],
@@ -284,6 +343,7 @@ def add_or_update_member_record(client, list_id, member_data, index)
         :merge_fields => merge_fields
       )
   else
+    # new member record
     member = client.lists.set_list_member(
         list_id,
         member_data["user_email"],
@@ -293,8 +353,10 @@ def add_or_update_member_record(client, list_id, member_data, index)
           :merge_fields => merge_fields
         }
       )
+    activate_member_marketing_groups(client, list_id, member_data) # activate marketing groups for all new members
   end
-  # update member's subsctiption group
+  
+  # update member's subscription group
   update_member_subscription_group(client, list_id, member_data)
 
   member = client.lists.get_list_member(list_id, email)
@@ -329,7 +391,7 @@ else
   puts "---------------------------------------------------------\n"
 end
 
-download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
+#download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
 
 # read downloaded records into arrays for import
 townnews_users = get_townnews_users(domain)               # returns array of registered users
@@ -349,6 +411,7 @@ townnews_users_and_subscribers.each_with_index do |member,index|
   #if index % 100 == 0
   #  mailchimp_client = connect_mailchimp()
   #end
+
   add_or_update_member_record(mailchimp_client, list_id, member, index)
 end
 

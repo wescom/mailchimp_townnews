@@ -11,6 +11,7 @@
 ENV['DAYS_PAST_TO_IMPORT'] = '1'   # number of past days to import from csv file (ie. 1 = yesterday, 2 = two days ago,...)
 # MailChimp settings
 ENV['MAILCHIMP_SUBSCRIPTION_GROUP_NAME'] = 'Subscriptions'
+ENV['MAILCHIMP_MARKETING_GROUP_NAME'] = 'I still want to be the first to know about:'
 #
 ENV['BENDBULLETIN_LIST_ID'] = '7e54ad03a8'
 ENV['REDMONDSPOKESMAN_LIST_ID'] = '3f18b6f620'
@@ -27,6 +28,7 @@ ENV['WALLOWA_LIST_ID'] = '9586cf40b5'
 # TownNews FTP settings and data configs
 ENV['TOWNNEWS_REGISTERED_USERS_FILE'] = '/dailyuser/export/audience/userexport.csv'
 ENV['TOWNNEWS_SUBSCRIBERS_FILE'] = '/dailyuser/export/audience/subscribers.csv'
-ENV['TOWNNEWS_DIGITAL_SUBSCRIPTION_NAMES'] = 'Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,Wallowa County Chieftain Brainworks Service,Seaside Signal Brainworks Service,The Observer Brainworks Service,Hermiston Herald Brainworks Service,East Oregonian Brainworks Service,The Blue Mountain Eagle Brainworks Service,Baker City Herald Brainworks Service,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service,Chinook Observer Brainworks Service'
-ENV['TOWNNEWS_SUBSCRIPTION_NAMES'] = 'Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,Wallowa County Chieftain Brainworks Service,Seaside Signal Brainworks Service,The Observer Brainworks Service,Hermiston Herald Brainworks Service,East Oregonian Brainworks Service,The Blue Mountain Eagle Brainworks Service,Baker City Herald Brainworks Service,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service,Chinook Observer Brainworks Service'
+ENV['TOWNNEWS_DIGITAL_SUBSCRIPTION_NAMES'] = 'Commercial Account Access,Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,Wallowa County Chieftain Brainworks Service,Seaside Signal Brainworks Service,The Observer Brainworks Service,Hermiston Herald Brainworks Service,East Oregonian Brainworks Service,The Blue Mountain Eagle Brainworks Service,Baker City Herald Brainworks Service,Baker City Herald Brainworks Service - Free,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service,Chinook Observer Brainworks Service'
+ENV['TOWNNEWS_SUBSCRIPTION_NAMES'] = 'Commercial Account Access,Full Digital Access, The Bulletin Brainworks Free Service, Employee Access,Wallowa County Chieftain Brainworks Service,Seaside Signal Brainworks Service,The Observer Brainworks Service,Hermiston Herald Brainworks Service,East Oregonian Brainworks Service,The Blue Mountain Eagle Brainworks Service,Baker City Herald Brainworks Service,Baker City Herald Brainworks Service - Free,The Redmond Spokesman Brainworks Service,The Astorian Brainworks Service,Chinook Observer Brainworks Service'
+ENV['TOWNNEWS_SUBSCRIPTION_COMMERCIAL_PREFIX'] = 'Comm' #used to detertmine commercial subscription names without listing every single one
 ENV['TOWNNEWS_REGISTERED_GROUP_NAME'] = 'Registered Account'
