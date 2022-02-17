@@ -12,6 +12,7 @@ ENV['DAYS_PAST_TO_IMPORT'] = '1'   # number of past days to import from csv file
 # MailChimp settings
 ENV['MAILCHIMP_SUBSCRIPTION_GROUP_NAME'] = 'Subscriptions'
 ENV['MAILCHIMP_MARKETING_GROUP_NAME'] = 'I still want to be the first to know about:'
+ENV['MAILCHIMP_DEFAULT_NEWSLETTERS'] = "'From the Editors Desk'" #list of newsletters to default new members to. Do not include ' in names
 #
 ENV['BENDBULLETIN_LIST_ID'] = '7e54ad03a8'
 ENV['REDMONDSPOKESMAN_LIST_ID'] = '3f18b6f620'

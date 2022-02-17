@@ -19,15 +19,21 @@ def download_TownNews_FTP_files(domain)
     puts "Downloading files from TownNews ..."
     registered_user_file = ENV['TOWNNEWS_REGISTERED_USERS_FILE']
     subscriber_file = ENV['TOWNNEWS_SUBSCRIBERS_FILE']
+
+    #Download files
     userfile = "./data/" + domain.upcase + "_users.csv"
     subscriberfile = "./data/" + domain.upcase + "_subscribers.csv"
     sftp.download!(registered_user_file, userfile)
+    backupsubscriberfile = "./data/" + domain.upcase + "_subscribers_" + DateTime.now().strftime("%Y-%m-%d") + ".bak"
+    #puts backupsubscriberfile
+    sftp.download!(registered_user_file, backupsubscriberfile)
     sftp.download!(subscriber_file, subscriberfile)
+
     puts "   " + registered_user_file + " => " + userfile
     puts "   " + subscriber_file + " => " + subscriberfile
     puts "Download complete."
   end
-  
+
   rescue
     puts "\n**************************************************************************************************"
     puts " TownNews FTP Connection Error: cannot connect to domain '"+domain+"'"

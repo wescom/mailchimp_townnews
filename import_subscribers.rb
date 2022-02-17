@@ -253,6 +253,44 @@ def activate_member_marketing_groups(client, list_id, member_data)
         :interests => interests_hash_to_set
     )
     #puts member
+    puts "     Marketing newsletters added to member"
+  else
+    puts "Member NOT FOUND in MailChimp"
+  end
+  
+  rescue MailchimpMarketing::ApiError => e
+    puts "GroupID Error: #{e}"  
+    exit!
+end
+
+def activate_default_newsletter_groups(client, list_id, member_data, group_name)
+  # activate all default newsletters for new member
+  newsletters = ENV['MAILCHIMP_DEFAULT_NEWSLETTERS'].split("'")
+
+  if member_exists_in_list?(client, list_id, member_data)
+    # create hash of interest_ids; set all to false except member's subscription group
+    group_id = get_group_id_of_name(client, list_id, group_name)
+    group_interests = client.lists.list_interest_category_interests(list_id, group_id) # find all interests of group_id
+    interests_hash_to_set = {}
+    keys_to_extract = ["id", "name"]
+    newsletters.each do |newsletter|
+      group_interests["interests"].map do |interest|
+        interest_name = interest["name"].gsub(/[^A-Za-z0-9 ]/, '')
+        interest_matches = (interest_name == newsletter ? true : false)
+        interests_hash_to_set[interest["id"]] = interest_matches
+        if interest_matches
+          service_name_matches_an_interest = true
+        end
+      end
+    end
+    
+    # activate marketing groups
+    member = client.lists.update_list_member(
+        list_id,
+        member_data["user_email"],
+        :interests => interests_hash_to_set
+    )
+    puts "     Default newsletters added to member"
   else
     puts "Member NOT FOUND in MailChimp"
   end
@@ -354,6 +392,7 @@ def add_or_update_member_record(client, list_id, member_data, index)
         }
       )
     activate_member_marketing_groups(client, list_id, member_data) # activate marketing groups for all new members
+    activate_default_newsletter_groups(client, list_id, member_data, "Newsletters") # activate marketing groups for all new members
   end
   
   # update member's subscription group
@@ -361,7 +400,7 @@ def add_or_update_member_record(client, list_id, member_data, index)
 
   member = client.lists.get_list_member(list_id, email)
   if merge_fields["MMERGE25"] == "YES"
-    puts "#{index+1} - Subscriber added/updated in MailChimp:  " + member['email_address'] + " - " + member['full_name']
+    puts "#{index+1} - Subscriber added/updated in MailChimp:  " + member['email_address'] + " - " + member['full_name'] + " - " + member_data["service_name"]
   else
     puts "#{index+1} - Registered User added/updated in MailChimp:  " + member['email_address'] + " - " + member['full_name']
   end
@@ -394,8 +433,8 @@ end
 download_TownNews_FTP_files(domain)  #connect to TownNews FTP and download files
 
 # read downloaded records into arrays for import
-townnews_users = get_townnews_users(domain)               # returns array of registered users
 townnews_subscribers = get_townnews_subscribers(domain)   # returns array of subscribers
+townnews_users = get_townnews_users(domain)               # returns array of registered users
 
 # merge registered users and subscribers into single array for import
 townnews_users_and_subscribers = merge_townnews_users_and_subscribers(townnews_users,townnews_subscribers)
