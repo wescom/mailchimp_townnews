@@ -26,7 +26,7 @@ def download_TownNews_FTP_files(domain)
     sftp.download!(registered_user_file, userfile)
     backupsubscriberfile = "./data/" + domain.upcase + "_subscribers_" + DateTime.now().strftime("%Y-%m-%d") + ".bak"
     #puts backupsubscriberfile
-    sftp.download!(registered_user_file, backupsubscriberfile)
+    sftp.download!(subscriber_file, backupsubscriberfile)
     sftp.download!(subscriber_file, subscriberfile)
 
     puts "   " + registered_user_file + " => " + userfile

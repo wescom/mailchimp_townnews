@@ -359,6 +359,9 @@ def add_or_update_member_record(client, list_id, member_data, index)
   merge_fields["ZIPCODE"] = get_zipcode(member_data) unless get_zipcode(member_data).nil?
   merge_fields["LASTSTART"] = member_data["startTime"] unless member_data["startTime"].nil?
   merge_fields["EXPIRE"] = member_data["expireTime"] unless member_data["expireTime"].nil?
+  merge_fields["STARTDATE"] = member_data["startTime"] unless member_data["startTime"].nil?
+  merge_fields["EXPIREDATE"] = member_data["expireTime"] unless member_data["expireTime"].nil?
+  merge_fields["STOPDATE"] = member_data["expireTime"] unless member_data["expireTime"].nil?
   merge_fields["MMERGE18"] = member_data['disabled'] == "1" ? 'INACTIVE' : 'ACTIVE'
   merge_fields["MMERGE24"] = digital_subscription?(member_data)
   merge_fields["MMERGE25"] = subscriber?(member_data)
